@@ -71,7 +71,7 @@ done
 add_label "needs_ci"
 
 echo "+----------+ RESULT +----------+"
-if [[ "$pr_body" != *"TEST_PLAN"* ]]; then
+if [[ "$pr_body" != *"TEST PLAN"* ]]; then
   echo "Test plan is not present!"
   add_label "needs_test_plan"
   exit 40
