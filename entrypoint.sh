@@ -61,10 +61,15 @@ echo "+----------+ LABELS +----------+"
 echo "$labels"
 
 for label in $labels; do
-  if [[ "$label" =~ ^(needs_revision|needs_test_plan|ci_verified)$ ]]; then
+  if [[ "$label" =~ ^(needs_revision|ci_verified)$ ]]; then
     echo "+----------+ LABEL +----------+"
     echo "$label"
     remove_label "$label"
+  fi
+  if [[ "$label" == "needs_test_plan" ]]; then
+    if [[ "pr_body" == *"TEST PLAN"* ]]; then
+      remove_label "$label"
+    fi
   fi
 done
 
