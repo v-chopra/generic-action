@@ -38,7 +38,7 @@ add_comment(){
     -H "${API_HEADER}" \
     -X POST \
     -H "Content-Type: application/json" \
-    -d "{\"body\":[\"${1}\"]}" \
+    -d "{\"body\":\"${1}\"}" \
     "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/comments"
 }
 
