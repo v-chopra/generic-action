@@ -104,7 +104,7 @@ for label in $labels; do
       remove_label "$label"
       ;;
     needs_test_plan)
-      if [[ "pr_body" == *"TEST PLAN"* ]]; then
+      if [[ "$pr_body" == *"TEST PLAN"* ]]; then
         remove_label "$label"
       fi
       ;;
@@ -115,7 +115,7 @@ for label in $labels; do
       fi
       ;;
     *)
-      echo "Unkown label $label"
+      echo "Unknown label $label"
       ;;
   esac
 done
