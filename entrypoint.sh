@@ -48,6 +48,27 @@ remove_label(){
 }
 
 body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}")
+changed_files=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}/files")
+
+added_and_modified_files=$(echo "$changed_files" | jq --raw-output '.[] | select(.status == ("modified", "added")).filename')
+
+for i in $added_and_modified_files; do
+  if [[ "$i" =~ ^.*.py$ ]]; then
+    has_python_files=true
+    break
+  fi
+done
+has_pytest=false
+
+if [ "$has_python_files" = true ]; then
+  for i in $added_and_modified_files; do
+    if [[ "$i" =~ ^test_.*.py$ ]]; then
+      echo "Found a pytest"
+      has_pytest=true
+      break
+    fi
+  done
+fi
 
 echo "+----------+ ACTION +----------+"
 echo "$action"
@@ -61,16 +82,27 @@ echo "+----------+ LABELS +----------+"
 echo "$labels"
 
 for label in $labels; do
-  if [[ "$label" =~ ^(needs_revision|ci_verified)$ ]]; then
-    echo "+----------+ LABEL +----------+"
-    echo "$label"
-    remove_label "$label"
-  fi
-  if [[ "$label" == "needs_test_plan" ]]; then
-    if [[ "pr_body" == *"TEST PLAN"* ]]; then
+  case $label in
+    needs_revision)
       remove_label "$label"
-    fi
-  fi
+      ;;
+    ci_verified)
+      remove_label "$label"
+      ;;
+    needs_test_plan)
+      if [[ "pr_body" == *"TEST PLAN"* ]]; then
+        remove_label "$label"
+      fi
+      ;;
+    needs_pytest)
+      if [[ "$has_pytest" = true ]]; then
+        remove_label "$label"
+      fi
+      ;;
+    *)
+      echo "Unkown label $label"
+      ;;
+  esac
 done
 
 add_label "needs_ci"
@@ -79,7 +111,13 @@ echo "+----------+ RESULT +----------+"
 if [[ "$pr_body" != *"TEST PLAN"* ]]; then
   echo "Test plan is not present!"
   add_label "needs_test_plan"
-  exit 40
-else
-  echo "Pull request passed all checkpoints!"
+  exit 40  
 fi
+
+if [[ ("$has_python_files" = true && "$has_pytest" = false) ]]; then
+  echo "Python files detected but pytests are not present!"
+  add_label "needs_pytest"
+  exit 41
+fi
+
+echo "Pull request passed all checkpoints!"
