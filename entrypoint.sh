@@ -126,6 +126,7 @@ if [[ ("$has_python_files" = true && "$has_pytest" = false) ]]; then
   add_label "needs_pytest"
   if [[ "$action" == "opened" ]]; then
     add_comment "$unit_test_psa"
+  fi
 fi
 
 echo "+----------+ RESULT +----------+"
