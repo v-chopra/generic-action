@@ -76,7 +76,7 @@ has_pytest=false
 if [ "$has_python_files" = true ]; then
   for i in $added_and_modified_files; do
     echo "$i in added_and_modified_files"
-    if [[ "$i" =~ ^test_.*.py$ ]]; then
+    if [[ "$i" =~ test_.*.py$ ]]; then
       echo "Found a pytest"
       has_pytest=true
       break
