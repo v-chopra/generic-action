@@ -21,6 +21,9 @@ if [[ -z "$GITHUB_EVENT_PATH" ]]; then
   exit 1
 fi
 
+unit_test_psa="Hey there!\\n\\nWhen modifying or adding files on the backend, it's always a good idea to add unit tests. \
+Please consider reading [the following thread](https://eightfoldai.atlassian.net/wiki/spaces/EP/pages/168034305/Testing+Python+Code) and adding unit tests."
+
 URI="https://api.github.com"
 API_HEADER="Accept: application/vnd.github.v3+json"
 AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
@@ -28,6 +31,16 @@ AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
 action=$(jq --raw-output .action "$GITHUB_EVENT_PATH")
 pr_body=$(jq --raw-output .pull_request.body "$GITHUB_EVENT_PATH")
 number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+
+add_comment(){
+  curl -sSL \
+    -H "${AUTH_HEADER}" \
+    -H "${API_HEADER}" \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -d "{\"body\":[\"${1}\"]}" \
+    "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/comments"
+}
 
 add_label(){
   curl -sSL \
@@ -97,6 +110,7 @@ for label in $labels; do
     needs_pytest)
       if [[ "$has_pytest" = true ]]; then
         remove_label "$label"
+        add_comment "Thank you for adding unit tests! :metal:"
       fi
       ;;
     *)
@@ -110,6 +124,8 @@ add_label "needs_ci"
 if [[ ("$has_python_files" = true && "$has_pytest" = false) ]]; then
   echo "Python files detected but pytests are not present!"
   add_label "needs_pytest"
+  if [[ "$action" == "opened" ]]; then
+    add_comment "$unit_test_psa"
 fi
 
 echo "+----------+ RESULT +----------+"
