@@ -107,17 +107,16 @@ done
 
 add_label "needs_ci"
 
+if [[ ("$has_python_files" = true && "$has_pytest" = false) ]]; then
+  echo "Python files detected but pytests are not present!"
+  add_label "needs_pytest"
+fi
+
 echo "+----------+ RESULT +----------+"
 if [[ "$pr_body" != *"TEST PLAN"* ]]; then
   echo "Test plan is not present!"
   add_label "needs_test_plan"
   exit 40  
-fi
-
-if [[ ("$has_python_files" = true && "$has_pytest" = false) ]]; then
-  echo "Python files detected but pytests are not present!"
-  add_label "needs_pytest"
-  exit 41
 fi
 
 echo "Pull request passed all checkpoints!"
