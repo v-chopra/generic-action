@@ -84,16 +84,7 @@ if [ "$has_python_files" = true ]; then
   done
 fi
 
-echo "+----------+ ACTION +----------+"
-echo "$action"
-
-echo "+----------+ BODY +----------+"
-echo "$body"
-
 labels="$(echo "$body" | jq --raw-output '.labels[].name')"
-
-echo "+----------+ LABELS +----------+"
-echo "$labels"
 
 for label in $labels; do
   case $label in
@@ -102,11 +93,6 @@ for label in $labels; do
       ;;
     ci_verified)
       remove_label "$label"
-      ;;
-    needs_test_plan)
-      if [[ "$pr_body" == *"TEST PLAN"* ]]; then
-        remove_label "$label"
-      fi
       ;;
     needs_pytest)
       if [[ "$has_pytest" = true ]]; then
@@ -128,13 +114,6 @@ if [[ ("$has_python_files" = true && "$has_pytest" = false) ]]; then
   if [[ "$action" == "opened" ]]; then
     add_comment "$unit_test_psa"
   fi
-fi
-
-echo "+----------+ RESULT +----------+"
-if [[ "$pr_body" != *"TEST PLAN"* ]]; then
-  echo "Test plan is not present!"
-  add_label "needs_test_plan"
-  exit 40  
 fi
 
 echo "Pull request passed all checkpoints!"
