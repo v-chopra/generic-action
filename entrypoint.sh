@@ -94,7 +94,10 @@ for label in $labels; do
     ci_verified)
       remove_label "$label"
       ;;
-    py3_verified)
+    needs_revision:py3)
+      remove_label "$label"
+      ;;
+    ci_verified:py3)
       remove_label "$label"
       ;;
     needs_pytest)
