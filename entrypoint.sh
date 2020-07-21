@@ -98,7 +98,9 @@ for label in $labels; do
       remove_label "$label"
       ;;
     ci_verified:py3)
-      remove_label "$label"
+      if [[ "$has_python_files" = true ]]; then
+        remove_label "$label"
+      fi
       ;;
     needs_pytest)
       if [[ "$has_pytest" = true ]]; then
@@ -116,6 +118,8 @@ add_label "needs_ci"
 
 if [[ "$has_python_files" = true ]]; then
   add_label "needs_ci:py3"
+else
+  add_label "ci_verified:py3"
 fi
 
 if [[ ("$has_python_files" = true && "$has_pytest" = false) ]]; then
