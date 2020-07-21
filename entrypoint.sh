@@ -97,11 +97,6 @@ for label in $labels; do
     needs_revision:py3)
       remove_label "$label"
       ;;
-    ci_verified:py3)
-      if [[ "$has_python_files" = true ]]; then
-        remove_label "$label"
-      fi
-      ;;
     needs_pytest)
       if [[ "$has_pytest" = true ]]; then
         remove_label "$label"
@@ -115,12 +110,7 @@ for label in $labels; do
 done
 
 add_label "needs_ci"
-
-if [[ "$has_python_files" = true ]]; then
-  add_label "needs_ci:py3"
-else
-  add_label "ci_verified:py3"
-fi
+add_label "needs_ci:py3"
 
 if [[ ("$has_python_files" = true && "$has_pytest" = false) ]]; then
   echo "Python files detected but pytests are not present!"
