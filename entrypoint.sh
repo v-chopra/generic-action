@@ -31,6 +31,9 @@ AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
 action=$(jq --raw-output .action "$GITHUB_EVENT_PATH")
 pr_body=$(jq --raw-output .pull_request.body "$GITHUB_EVENT_PATH")
 number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+title=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
+
+echo $title
 
 add_comment(){
   curl -sSL \
