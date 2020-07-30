@@ -36,6 +36,7 @@ title=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
 echo $title
 
 has_hotfix_label=false
+hotfix_failed=false
 
 if [[ "$title" =~ ^HOTFIX.*$ ]]; then
   needs_hotfix=true
@@ -106,6 +107,9 @@ for label in $labels; do
     needs_hotfix)
       has_hotfix_label=true
       ;;
+    "hotfix:failed")
+      hotfix_failed=true
+      ;;
     needs_pytest)
       if [[ "$has_pytest" = true ]]; then
         remove_label "$label"
@@ -120,7 +124,7 @@ done
 
 add_label "needs_ci"
 
-if [[ ("$needs_hotfix" = true && "$has_hotfix_label" = false) ]]; then
+if [[ ("$needs_hotfix" = true && "$has_hotfix_label" = false && "$hotfix_failed" = false) ]]; then
   echo "Detected HOTFIX pull request that isn't already labeled."
   add_label "needs_hotfix"
 fi
