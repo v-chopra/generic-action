@@ -35,6 +35,12 @@ title=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
 
 echo $title
 
+has_hotfix_label=false
+
+if [[ "$title" =~ ^HOTFIX.*$ ]]; then
+  needs_hotfix=true
+fi
+
 add_comment(){
   curl -sSL \
     -H "${AUTH_HEADER}" \
@@ -97,6 +103,9 @@ for label in $labels; do
     ci_verified)
       remove_label "$label"
       ;;
+    needs_hotfix)
+      has_hotfix_label=true
+      ;;
     needs_pytest)
       if [[ "$has_pytest" = true ]]; then
         remove_label "$label"
@@ -110,6 +119,11 @@ for label in $labels; do
 done
 
 add_label "needs_ci"
+
+if [[ ("$needs_hotfix" = true && "$has_hotfix_label" = false) ]]; then
+  echo "Detected HOTFIX pull request that isn't already labeled."
+  add_label "needs_hotfix"
+fi
 
 if [[ ("$has_python_files" = true && "$has_pytest" = false) ]]; then
   echo "Python files detected but pytests are not present!"
