@@ -21,8 +21,8 @@ if [[ -z "$GITHUB_EVENT_PATH" ]]; then
   exit 1
 fi
 
-unit_test_psa="Hey there!\\n\\nWhen modifying or adding files on the backend, it's always a good idea to add unit tests. \
-Please consider reading [the following thread](https://eightfoldai.atlassian.net/wiki/spaces/EP/pages/168034305/Testing+Python+Code) and adding unit tests."
+# unit_test_psa="Hey there!\\n\\nWhen modifying or adding files on the backend, it's always a good idea to add unit tests. \
+# Please consider reading [the following thread](https://eightfoldai.atlassian.net/wiki/spaces/EP/pages/168034305/Testing+Python+Code) and adding unit tests."
 
 URI="https://api.github.com"
 API_HEADER="Accept: application/vnd.github.v3+json"
@@ -71,28 +71,28 @@ remove_label(){
 }
 
 body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}")
-changed_files=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}/files")
+# changed_files=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}/files")
 
-added_and_modified_files=$(echo "$changed_files" | jq --raw-output '.[] | select(.status == ("modified", "added")).filename')
+# added_and_modified_files=$(echo "$changed_files" | jq --raw-output '.[] | select(.status == ("modified", "added")).filename')
 
-for i in $added_and_modified_files; do
-  if [[ "$i" =~ ^.*.py$ ]]; then
-    has_python_files=true
-    break
-  fi
-done
-has_pytest=false
+# for i in $added_and_modified_files; do
+#   if [[ "$i" =~ ^.*.py$ ]]; then
+#     has_python_files=true
+#     break
+#   fi
+# done
+# has_pytest=false
 
-if [ "$has_python_files" = true ]; then
-  for i in $added_and_modified_files; do
-    echo "$i in added_and_modified_files"
-    if [[ "$i" =~ .*test.*.py$ ]]; then
-      echo "Found a pytest"
-      has_pytest=true
-      break
-    fi
-  done
-fi
+# if [ "$has_python_files" = true ]; then
+#   for i in $added_and_modified_files; do
+#     echo "$i in added_and_modified_files"
+#     if [[ "$i" =~ .*test.*.py$ ]]; then
+#       echo "Found a pytest"
+#       has_pytest=true
+#       break
+#     fi
+#   done
+# fi
 
 labels="$(echo "$body" | jq --raw-output '.labels[].name')"
 
@@ -110,12 +110,12 @@ for label in $labels; do
     "hotfix:failed")
       hotfix_failed=true
       ;;
-    needs_pytest)
-      if [[ "$has_pytest" = true ]]; then
-        remove_label "$label"
-        add_comment "Thank you for adding unit tests! :metal:"
-      fi
-      ;;
+#     needs_pytest)
+#       if [[ "$has_pytest" = true ]]; then
+#         remove_label "$label"
+#         add_comment "Thank you for adding unit tests! :metal:"
+#       fi
+#       ;;
     *)
       echo "Unknown label $label"
       ;;
@@ -129,12 +129,12 @@ if [[ ("$needs_hotfix" = true && "$has_hotfix_label" = false && "$hotfix_failed"
   add_label "needs_hotfix"
 fi
 
-if [[ ("$has_python_files" = true && "$has_pytest" = false) ]]; then
-  echo "Python files detected but pytests are not present!"
-  add_label "needs_pytest"
-  if [[ "$action" == "opened" ]]; then
-    add_comment "$unit_test_psa"
-  fi
-fi
+# if [[ ("$has_python_files" = true && "$has_pytest" = false) ]]; then
+#   echo "Python files detected but pytests are not present!"
+#   add_label "needs_pytest"
+#   if [[ "$action" == "opened" ]]; then
+#     add_comment "$unit_test_psa"
+#   fi
+# fi
 
 echo "Pull request passed all checkpoints!"
