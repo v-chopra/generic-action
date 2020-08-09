@@ -116,6 +116,9 @@ for label in $labels; do
 #         add_comment "Thank you for adding unit tests! :metal:"
 #       fi
 #       ;;
+    "*:success")
+      remove_label "$label"
+      ;;
     *)
       echo "Unknown label $label"
       ;;
