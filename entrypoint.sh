@@ -67,7 +67,7 @@ remove_label(){
     -H "${AUTH_HEADER}" \
     -H "${API_HEADER}" \
     -X DELETE \
-    "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels/${1}"
+    "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels/${1// /%20}"
 }
 
 body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}")
