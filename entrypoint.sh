@@ -94,7 +94,9 @@ body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_R
 #   done
 # fi
 
-for label in $(echo "$body" | jq --raw-output '.labels[].name'); do
+labels=$(echo "$body" | jq --raw-output '.labels[].name')
+
+for label in "$labels"; do
   case $label in
     needs_revision)
       echo "Removing label: $label"
