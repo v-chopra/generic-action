@@ -96,18 +96,24 @@ body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_R
 
 labels="$(echo "$body" | jq --raw-output '.labels[].name')"
 
+echo "Seeing labels: $labels"
+
 for label in $labels; do
   case $label in
     needs_revision)
+      echo "Removing label: $label"
       remove_label "$label"
       ;;
     ci_verified)
+      echo "Removing label: $label"
       remove_label "$label"
       ;;
     needs_hotfix)
+      echo "Setting has_hotfix_label=true"
       has_hotfix_label=true
       ;;
     "hotfix:failed")
+      echo "Setting hotfix_failed=true"
       hotfix_failed=true
       ;;
 #     needs_pytest)
@@ -117,6 +123,7 @@ for label in $labels; do
 #       fi
 #       ;;
     "*:success")
+      echo "Removing label: $label"
       remove_label "$label"
       ;;
     *)
